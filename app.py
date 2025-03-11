@@ -1,6 +1,42 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+
+def set_page_style():
+    """Set custom page styling."""
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        html, body, [class*="css"] {
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .stButton button {
+            border-radius: 20px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .cute-header {
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .cute-divider {
+            text-align: center;
+            font-size: 24px;
+            margin: 1rem 0;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
 def initialize_session_state():
     """Initialize session state variables."""
@@ -15,28 +51,32 @@ def initialize_session_state():
 
 def render_header():
     """Render the application header."""
-    st.title("Baddies Stomp Counter")
+    st.markdown('<div class="cute-header">', unsafe_allow_html=True)
+    # Add your GIF URL here
+    st.markdown("# 🌟 Andrew's Baddies Stomp Counter 🌟")
+    st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("""
+    🎮 **How to use:**
     1. Add player stats below
     2. View team statistics
     """)
 
 def render_player_input():
     """Render the player input section."""
-    st.header("Add Player Stats")
+    st.markdown('<div class="cute-divider">✨ Add Player Stats ✨</div>', unsafe_allow_html=True)
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        player_name = st.text_input("Name")
+        player_name = st.text_input("📝 Name")
     with col2:
-        score_before = st.number_input("Score Before", min_value=0, value=0)
+        score_before = st.number_input("🎯 Score Before", min_value=0, value=0)
     with col3:
-        score_after = st.number_input("Score After", min_value=0, value=0)
+        score_after = st.number_input("🎮 Score After", min_value=0, value=0)
     with col4:
-        team = st.selectbox("Team", ["Team 1", "Team 2"])
+        team = st.selectbox("👥 Team", ["Team 1", "Team 2"])
 
-    if st.button("Add Player"):
+    if st.button("➕ Add Player"):
         if player_name and score_after >= score_before:
             new_player = {
                 "Name": player_name,
@@ -48,65 +88,60 @@ def render_player_input():
                 st.session_state.team1_players.append(new_player)
             else:
                 st.session_state.team2_players.append(new_player)
-            st.success(f"Added {player_name}'s stats!")
+            st.success(f"✨ Added {player_name}'s stats!")
         else:
-            st.error("Please enter valid player information.")
+            st.error("❌ Please enter valid player information.")
 
 def render_penalty_input():
     """Render the penalty input section."""
-    st.header("Add Penalty")
+    st.markdown('<div class="cute-divider">📝 Add Penalty</div>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        penalty_name = st.text_input("Penalty Description")
+        penalty_name = st.text_input("📝 Penalty Description")
     with col2:
-        penalty_amount = st.number_input("Amount", min_value=0, value=0)
+        penalty_amount = st.number_input("💫 Amount", min_value=0, value=0)
     with col3:
-        team = st.selectbox("Team", ["Team 1", "Team 2"], key="penalty_team")
+        team = st.selectbox("👥 Select Team", ["Team 1", "Team 2"], key="penalty_team")
 
-    if st.button("Add Penalty"):
+    if st.button("➕ Add Penalty"):
         if penalty_name and penalty_amount > 0:
             new_penalty = {
                 "Name": penalty_name,
                 "Score Before": "N/A",
                 "Score After": "N/A",
-                "Difference": -penalty_amount  # Make penalties negative
+                "Difference": -penalty_amount
             }
             if team == "Team 1":
                 st.session_state.team1_penalties.append(new_penalty)
             else:
                 st.session_state.team2_penalties.append(new_penalty)
-            st.success(f"Added penalty to {team}")
+            st.success(f"✨ Added penalty to {team}")
         else:
-            st.error("Please enter valid penalty information.")
+            st.error("❌ Please enter valid penalty information.")
 
 def render_team_statistics():
     """Render team statistics."""
     if st.session_state.team1_players:
-        st.header("Team 1")
-        # Combine players and penalties for display
+        st.markdown('<div class="cute-divider">🏆 Team 1 Statistics 🏆</div>', unsafe_allow_html=True)
         team1_data = st.session_state.team1_players + st.session_state.team1_penalties
         if team1_data:
-            # Calculate total including penalties
             team1_total = (
                 sum(p['Difference'] for p in st.session_state.team1_players) +
                 sum(p['Difference'] for p in st.session_state.team1_penalties)
             )
-            # Create total row
             total_row = [{
                 'Name': 'TOTAL',
                 'Score Before': sum(p['Score Before'] for p in st.session_state.team1_players if isinstance(p['Score Before'], (int, float))),
                 'Score After': sum(p['Score After'] for p in st.session_state.team1_players if isinstance(p['Score After'], (int, float))),
                 'Difference': team1_total
             }]
-            # Create DataFrame with all data
             team1_df = pd.DataFrame(team1_data + total_row)
             st.dataframe(team1_df, hide_index=True, use_container_width=True)
 
-            # Delete buttons
             for idx, item in enumerate(team1_data):
-                if st.button(f"Delete {item['Name']}", key=f"delete_team1_{idx}"):
+                if st.button(f"🗑️ Delete {item['Name']}", key=f"delete_team1_{idx}"):
                     if item in st.session_state.team1_players:
                         st.session_state.team1_players.remove(item)
                     else:
@@ -114,42 +149,88 @@ def render_team_statistics():
                     st.rerun()
 
     if st.session_state.team2_players:
-        st.header("Team 2")
-        # Combine players and penalties for display
+        st.markdown('<div class="cute-divider">🏆 Team 2 Statistics 🏆</div>', unsafe_allow_html=True)
         team2_data = st.session_state.team2_players + st.session_state.team2_penalties
         if team2_data:
-            # Calculate total including penalties
             team2_total = (
                 sum(p['Difference'] for p in st.session_state.team2_players) +
                 sum(p['Difference'] for p in st.session_state.team2_penalties)
             )
-            # Create total row
             total_row = [{
                 'Name': 'TOTAL',
                 'Score Before': sum(p['Score Before'] for p in st.session_state.team2_players if isinstance(p['Score Before'], (int, float))),
                 'Score After': sum(p['Score After'] for p in st.session_state.team2_players if isinstance(p['Score After'], (int, float))),
                 'Difference': team2_total
             }]
-            # Create DataFrame with all data
             team2_df = pd.DataFrame(team2_data + total_row)
             st.dataframe(team2_df, hide_index=True, use_container_width=True)
 
-            # Delete buttons
             for idx, item in enumerate(team2_data):
-                if st.button(f"Delete {item['Name']}", key=f"delete_team2_{idx}"):
+                if st.button(f"🗑️ Delete {item['Name']}", key=f"delete_team2_{idx}"):
                     if item in st.session_state.team2_players:
                         st.session_state.team2_players.remove(item)
                     else:
                         st.session_state.team2_penalties.remove(item)
                     st.rerun()
 
+def render_summary():
+    """Render the summary section with winning team and overview."""
+    if st.session_state.team1_players or st.session_state.team2_players:
+        st.markdown("---")
+
+        team1_total = (
+            sum(p['Difference'] for p in st.session_state.team1_players) +
+            sum(p['Difference'] for p in st.session_state.team1_penalties)
+        )
+        team2_total = (
+            sum(p['Difference'] for p in st.session_state.team2_players) +
+            sum(p['Difference'] for p in st.session_state.team2_penalties)
+        )
+
+        # Exact format as requested
+        st.write("winning team:")
+        if team1_total > team2_total:
+            st.write(f"Team 1 ({team1_total})")
+        elif team2_total > team1_total:
+            st.write(f"Team 2 ({team2_total})")
+        else:
+            st.write("Tie!")
+
+        st.write("OVERVIEW")
+
+        st.write("Team 1:")
+        st.write(f"total stomps: {team1_total}")
+        if st.session_state.team1_players:
+            st.write("top 3 players:")
+            top_players = sorted(
+                [p for p in st.session_state.team1_players if isinstance(p['Difference'], (int, float))],
+                key=lambda x: x['Difference'],
+                reverse=True
+            )[:3]
+            for player in top_players:
+                st.write(f"{player['Name']} | {player['Difference']}")
+
+        st.write("Team 2:")
+        st.write(f"total stomps: {team2_total}")
+        if st.session_state.team2_players:
+            st.write("top 3 players:")
+            top_players = sorted(
+                [p for p in st.session_state.team2_players if isinstance(p['Difference'], (int, float))],
+                key=lambda x: x['Difference'],
+                reverse=True
+            )[:3]
+            for player in top_players:
+                st.write(f"{player['Name']} | {player['Difference']}")
+
 def main():
     """Main application function."""
+    set_page_style()
     initialize_session_state()
     render_header()
     render_player_input()
     render_penalty_input()
     render_team_statistics()
+    render_summary()
 
 if __name__ == "__main__":
     main()
