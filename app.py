@@ -5,37 +5,68 @@ def set_page_style():
     """Set custom page styling."""
     st.markdown("""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Concert+One&display=swap');
 
         html, body, [class*="css"] {
-            font-family: 'Quicksand', sans-serif;
+            font-family: 'Concert One', cursive;
         }
 
         h1 {
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 700;
+            font-family: 'Concert One', cursive;
             text-align: center;
             color: #333;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #000;
         }
 
         .stButton button {
+            font-family: 'Concert One', cursive;
             border-radius: 20px;
-            font-family: 'Quicksand', sans-serif;
+            transition: all 0.3s ease;
+            border: 2px solid #333;
         }
 
-        .cute-header {
+        .stButton button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-border {
             text-align: center;
             padding: 1rem;
             margin-bottom: 2rem;
         }
 
-        .cute-divider {
+        .section-title {
             text-align: center;
-            font-size: 24px;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #000;
+        }
+
+        .divider {
+            text-align: center;
             margin: 1rem 0;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .blooming-flower {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            animation: bloom 2s ease-in-out infinite;
+        }
+
+        @keyframes bloom {
+            0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
         </style>
+        <div class="blooming-flower">✿</div>
     """, unsafe_allow_html=True)
 
 def initialize_session_state():
@@ -51,32 +82,33 @@ def initialize_session_state():
 
 def render_header():
     """Render the application header."""
-    st.markdown('<div class="cute-header">', unsafe_allow_html=True)
-    # Add your GIF URL here
-    st.markdown("# 🌟 Andrew's Baddies Stomp Counter 🌟")
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('<div class="header-border">', unsafe_allow_html=True)
+    st.markdown("# Andrew's Baddies Stomp Counter")
+    st.markdown('<div class="divider">ᵔᴗᵔ ⟡ ✿ ⟡ ᵔᴗᵔ</div>', unsafe_allow_html=True)
     st.markdown("""
-    🎮 **How to use:**
     1. Add player stats below
     2. View team statistics
     """)
+    st.markdown('<div class="divider">﹒ʬʬ﹒⪩⪨﹒⟡﹒ᐢ..ᐢ</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 def render_player_input():
     """Render the player input section."""
-    st.markdown('<div class="cute-divider">✨ Add Player Stats ✨</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Add Player Stats</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider">✿ ⟡ ✿</div>', unsafe_allow_html=True)
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        player_name = st.text_input("📝 Name")
+        player_name = st.text_input("Name")
     with col2:
-        score_before = st.number_input("🎯 Score Before", min_value=0, value=0)
+        score_before = st.number_input("Score Before", min_value=0, value=0)
     with col3:
-        score_after = st.number_input("🎮 Score After", min_value=0, value=0)
+        score_after = st.number_input("Score After", min_value=0, value=0)
     with col4:
-        team = st.selectbox("👥 Team", ["Team 1", "Team 2"])
+        team = st.selectbox("Team", ["Team 1", "Team 2"])
 
-    if st.button("➕ Add Player"):
+    if st.button("Add Player"):
         if player_name and score_after >= score_before:
             new_player = {
                 "Name": player_name,
@@ -88,24 +120,27 @@ def render_player_input():
                 st.session_state.team1_players.append(new_player)
             else:
                 st.session_state.team2_players.append(new_player)
-            st.success(f"✨ Added {player_name}'s stats!")
+            st.success(f"Added {player_name}'s stats!")
         else:
-            st.error("❌ Please enter valid player information.")
+            st.error("Please enter valid player information.")
+
+    st.markdown('<div class="divider">﹒✿﹒⊹﹒∇﹒✸</div>', unsafe_allow_html=True)
 
 def render_penalty_input():
     """Render the penalty input section."""
-    st.markdown('<div class="cute-divider">📝 Add Penalty</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Add Penalty</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider">⟡ ᐢ..ᐢ ⟡</div>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        penalty_name = st.text_input("📝 Penalty Description")
+        penalty_name = st.text_input("Penalty Description")
     with col2:
-        penalty_amount = st.number_input("💫 Amount", min_value=0, value=0)
+        penalty_amount = st.number_input("Amount", min_value=0, value=0)
     with col3:
-        team = st.selectbox("👥 Select Team", ["Team 1", "Team 2"], key="penalty_team")
+        team = st.selectbox("Select Team", ["Team 1", "Team 2"], key="penalty_team")
 
-    if st.button("➕ Add Penalty"):
+    if st.button("Add Penalty"):
         if penalty_name and penalty_amount > 0:
             new_penalty = {
                 "Name": penalty_name,
@@ -117,14 +152,17 @@ def render_penalty_input():
                 st.session_state.team1_penalties.append(new_penalty)
             else:
                 st.session_state.team2_penalties.append(new_penalty)
-            st.success(f"✨ Added penalty to {team}")
+            st.success(f"Added penalty to {team}")
         else:
-            st.error("❌ Please enter valid penalty information.")
+            st.error("Please enter valid penalty information.")
+
+    st.markdown('<div class="divider">﹒⟢﹒❀﹒ᵔᴗᵔ﹒♡</div>', unsafe_allow_html=True)
 
 def render_team_statistics():
     """Render team statistics."""
     if st.session_state.team1_players:
-        st.markdown('<div class="cute-divider">🏆 Team 1 Statistics 🏆</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Team 1</div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider">⟡ ✿ ⟡</div>', unsafe_allow_html=True)
         team1_data = st.session_state.team1_players + st.session_state.team1_penalties
         if team1_data:
             team1_total = (
@@ -141,7 +179,7 @@ def render_team_statistics():
             st.dataframe(team1_df, hide_index=True, use_container_width=True)
 
             for idx, item in enumerate(team1_data):
-                if st.button(f"🗑️ Delete {item['Name']}", key=f"delete_team1_{idx}"):
+                if st.button(f"Delete {item['Name']}", key=f"delete_team1_{idx}"):
                     if item in st.session_state.team1_players:
                         st.session_state.team1_players.remove(item)
                     else:
@@ -149,7 +187,8 @@ def render_team_statistics():
                     st.rerun()
 
     if st.session_state.team2_players:
-        st.markdown('<div class="cute-divider">🏆 Team 2 Statistics 🏆</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Team 2</div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider">⟡ ✿ ⟡</div>', unsafe_allow_html=True)
         team2_data = st.session_state.team2_players + st.session_state.team2_penalties
         if team2_data:
             team2_total = (
@@ -166,7 +205,7 @@ def render_team_statistics():
             st.dataframe(team2_df, hide_index=True, use_container_width=True)
 
             for idx, item in enumerate(team2_data):
-                if st.button(f"🗑️ Delete {item['Name']}", key=f"delete_team2_{idx}"):
+                if st.button(f"Delete {item['Name']}", key=f"delete_team2_{idx}"):
                     if item in st.session_state.team2_players:
                         st.session_state.team2_players.remove(item)
                     else:
@@ -177,6 +216,7 @@ def render_summary():
     """Render the summary section with winning team and overview."""
     if st.session_state.team1_players or st.session_state.team2_players:
         st.markdown("---")
+        st.markdown('<div class="divider">﹒⟢﹒❀﹒ᵔᴗᵔ﹒♡﹒〇﹒ıllı</div>', unsafe_allow_html=True)
 
         team1_total = (
             sum(p['Difference'] for p in st.session_state.team1_players) +
@@ -187,7 +227,6 @@ def render_summary():
             sum(p['Difference'] for p in st.session_state.team2_penalties)
         )
 
-        # Exact format as requested
         st.write("winning team:")
         if team1_total > team2_total:
             st.write(f"Team 1 ({team1_total})")
