@@ -65,6 +65,50 @@ def set_page_style():
             50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
+        
+        .image-container {
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .text-bubble {
+            background-color: #f8f9fa;
+            border: 2px solid #333;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .text-bubble:before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 15px solid #333;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .text-bubble:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 12px solid #f8f9fa;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
         .title-container {
             position: relative;
             padding: 20px;
@@ -108,13 +152,21 @@ def initialize_session_state():
 
 def render_header():
     """Render the application header."""
+    # Add image section above title
+    st.markdown('<div class="image-container">', unsafe_allow_html=True)
+    st.image("https://replit.com/cdn/attached_assets/download.gif", use_column_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     st.markdown('<div class="header-border">', unsafe_allow_html=True)
     st.markdown('<div class="title-container"><div class="title-bg"></div><h1>Andrew and Shadows Stomp Counter</h1></div>', unsafe_allow_html=True)
     st.markdown('<div class="divider">ᵔᴗᵔ ⟡ ✿ ⟡ ᵔᴗᵔ</div>', unsafe_allow_html=True)
+    st.markdown('<div class="text-bubble">', unsafe_allow_html=True)
     st.markdown("""
     1. Add player stats below
     2. View team statistics
+    3. See who's winning!
     """)
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="divider">﹒ʬʬ﹒⪩⪨﹒⟡﹒ᐢ..ᐢ</div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
