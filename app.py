@@ -154,7 +154,7 @@ def render_header():
     """Render the application header."""
     # Add image section above title
     st.markdown('<div class="image-container">', unsafe_allow_html=True)
-    st.image("https://replit.com/cdn/attached_assets/download.gif", use_column_width=True)
+    st.image("attached_assets/snow-blossoms.jpg", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="header-border">', unsafe_allow_html=True)
