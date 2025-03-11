@@ -47,65 +47,103 @@ def render_player_input():
             st.error("Please enter valid player information.")
 
 def render_team_assignment():
-    """Render the team assignment section."""
+    """Render the team assignment section with drag and drop."""
     st.header("Team Assignment")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.subheader("Available Players")
-        for i, player in enumerate(st.session_state.unassigned_players):
-            if st.button(f"➡️ {player['Player']} (+{player['Increase']} stomps)", key=f"unassigned_{i}"):
-                team = st.radio(f"Select team for {player['Player']}", ["Team 1", "Team 2"])
-                if team == "Team 1":
-                    st.session_state.team1_players.append(player)
-                else:
-                    st.session_state.team2_players.append(player)
-                st.session_state.unassigned_players.remove(player)
-                st.rerun()
+        for player in st.session_state.unassigned_players:
+            with st.container(border=True):
+                st.write(f"{player['Player']}: +{player['Increase']} stomps")
+                target = st.selectbox(
+                    "Drag to team",
+                    ["Unassigned", "Team 1", "Team 2"],
+                    key=f"select_{player['Player']}"
+                )
+                if target != "Unassigned":
+                    if target == "Team 1":
+                        st.session_state.team1_players.append(player)
+                    else:
+                        st.session_state.team2_players.append(player)
+                    st.session_state.unassigned_players.remove(player)
+                    st.rerun()
 
     with col2:
         st.subheader("Team 1")
-        for i, player in enumerate(st.session_state.team1_players):
-            if st.button(f"❌ {player['Player']} (+{player['Increase']} stomps)", key=f"team1_{i}"):
-                st.session_state.unassigned_players.append(player)
-                st.session_state.team1_players.remove(player)
-                st.rerun()
+        for player in st.session_state.team1_players:
+            with st.container(border=True):
+                st.write(f"{player['Player']}: +{player['Increase']} stomps")
+                target = st.selectbox(
+                    "Change team",
+                    ["Team 1", "Unassigned", "Team 2"],
+                    key=f"team1_{player['Player']}"
+                )
+                if target != "Team 1":
+                    if target == "Unassigned":
+                        st.session_state.unassigned_players.append(player)
+                    else:
+                        st.session_state.team2_players.append(player)
+                    st.session_state.team1_players.remove(player)
+                    st.rerun()
 
     with col3:
         st.subheader("Team 2")
-        for i, player in enumerate(st.session_state.team2_players):
-            if st.button(f"❌ {player['Player']} (+{player['Increase']} stomps)", key=f"team2_{i}"):
-                st.session_state.unassigned_players.append(player)
-                st.session_state.team2_players.remove(player)
-                st.rerun()
+        for player in st.session_state.team2_players:
+            with st.container(border=True):
+                st.write(f"{player['Player']}: +{player['Increase']} stomps")
+                target = st.selectbox(
+                    "Change team",
+                    ["Team 2", "Unassigned", "Team 1"],
+                    key=f"team2_{player['Player']}"
+                )
+                if target != "Team 2":
+                    if target == "Unassigned":
+                        st.session_state.unassigned_players.append(player)
+                    else:
+                        st.session_state.team1_players.append(player)
+                    st.session_state.team2_players.remove(player)
+                    st.rerun()
 
 def render_team_statistics():
     """Render team statistics."""
     if st.session_state.team1_players or st.session_state.team2_players:
         st.header("Team Statistics")
 
-        # Calculate team totals
-        team1_total_increase = sum(p['Increase'] for p in st.session_state.team1_players)
-        team2_total_increase = sum(p['Increase'] for p in st.session_state.team2_players)
+        # Team 1 Statistics
+        if st.session_state.team1_players:
+            st.subheader("Team 1 Players")
+            team1_df = pd.DataFrame(st.session_state.team1_players)
 
-        # Create team comparison DataFrame
-        team_data = pd.DataFrame({
-            "Team": ["Team 1", "Team 2"],
-            "Players": [len(st.session_state.team1_players), len(st.session_state.team2_players)],
-            "Total Stomp Increase": [team1_total_increase, team2_total_increase]
-        })
+            # Individual player chart for Team 1
+            fig1 = px.bar(team1_df,
+                         x="Player",
+                         y="Increase",
+                         title="Team 1 Player Stomps",
+                         color="Player")
+            st.plotly_chart(fig1, use_container_width=True)
 
-        # Display team comparison
-        st.dataframe(team_data, hide_index=True)
+            # Team 1 total
+            team1_total = sum(p['Increase'] for p in st.session_state.team1_players)
+            st.metric("Team 1 Total Stomp Increase", team1_total)
 
-        # Create team comparison visualization
-        fig = px.bar(team_data,
-                    x="Team",
-                    y="Total Stomp Increase",
-                    title="Team Stomp Comparison",
-                    color="Team")
-        st.plotly_chart(fig, use_container_width=True)
+        # Team 2 Statistics
+        if st.session_state.team2_players:
+            st.subheader("Team 2 Players")
+            team2_df = pd.DataFrame(st.session_state.team2_players)
+
+            # Individual player chart for Team 2
+            fig2 = px.bar(team2_df,
+                         x="Player",
+                         y="Increase",
+                         title="Team 2 Player Stomps",
+                         color="Player")
+            st.plotly_chart(fig2, use_container_width=True)
+
+            # Team 2 total
+            team2_total = sum(p['Increase'] for p in st.session_state.team2_players)
+            st.metric("Team 2 Total Stomp Increase", team2_total)
 
 def main():
     """Main application function."""
