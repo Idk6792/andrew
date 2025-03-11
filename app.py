@@ -110,12 +110,12 @@ def render_header():
     """Render the application header."""
     st.markdown('<div class="header-border">', unsafe_allow_html=True)
     st.markdown('<div class="title-container"><div class="title-bg"></div><h1>Andrew and Shadows Stomp Counter</h1></div>', unsafe_allow_html=True)
-    st.markdown('<div class="divider">⟡ ✿ ⟡</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider">ᵔᴗᵔ ⟡ ✿ ⟡ ᵔᴗᵔ</div>', unsafe_allow_html=True)
     st.markdown("""
     1. Add player stats below
     2. View team statistics
     """)
-    st.markdown('<div class="divider">⟡ ✿ ⟡</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider">﹒ʬʬ﹒⪩⪨﹒⟡﹒ᐢ..ᐢ</div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 def render_player_input():
@@ -155,7 +155,7 @@ def render_player_input():
 def render_penalty_input():
     """Render the penalty input section."""
     st.markdown('<div class="section-title">Add Penalty</div>', unsafe_allow_html=True)
-    st.markdown('<div class="divider">⟡ ⟡</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider">⟡ ᐢ..ᐢ ⟡</div>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
@@ -182,7 +182,7 @@ def render_penalty_input():
         else:
             st.error("Please enter valid penalty information.")
 
-    st.markdown('<div class="divider">⟡ ✿ ⟡</div>', unsafe_allow_html=True)
+    st.markdown('<div class="divider">﹒⟢﹒❀﹒ᵔᴗᵔ﹒♡</div>', unsafe_allow_html=True)
 
 def render_team_statistics():
     """Render team statistics."""
@@ -242,7 +242,7 @@ def render_summary():
     """Render the summary section with winning team and overview."""
     if st.session_state.team1_players or st.session_state.team2_players:
         st.markdown("---")
-        st.markdown('<div class="divider">⟡ ✿ ⟡</div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider">﹒⟢﹒❀﹒ᵔᴗᵔ﹒♡﹒〇﹒ıllı</div>', unsafe_allow_html=True)
 
         team1_total = (
             sum(p['Difference'] for p in st.session_state.team1_players) +
