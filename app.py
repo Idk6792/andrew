@@ -18,7 +18,7 @@ def render_header():
     st.title("Baddies Stomp Counter")
     st.markdown("""
     1. Add player stats below
-    2. View team statistics and penalties
+    2. View team statistics
     """)
 
 def render_player_input():
@@ -68,8 +68,10 @@ def render_penalty_input():
     if st.button("Add Penalty"):
         if penalty_name and penalty_amount > 0:
             new_penalty = {
-                "Description": penalty_name,
-                "Amount": penalty_amount
+                "Name": f"Mari/Leak - {penalty_name}",
+                "Score Before": "N/A",
+                "Score After": "N/A",
+                "Difference": penalty_amount
             }
             if team == "Team 1":
                 st.session_state.team1_penalties.append(new_penalty)
@@ -83,68 +85,56 @@ def render_team_statistics():
     """Render team statistics."""
     if st.session_state.team1_players:
         st.header("Team 1")
-        team1_df = pd.DataFrame(st.session_state.team1_players)
-        if not team1_df.empty:
-            # Calculate total before displaying
+        # Combine players and penalties for display
+        team1_data = st.session_state.team1_players + st.session_state.team1_penalties
+        if team1_data:
+            # Calculate total from players only
             team1_total = sum(p['Difference'] for p in st.session_state.team1_players)
-            # Add total row
-            total_row = pd.DataFrame([{
+            # Create total row
+            total_row = [{
                 'Name': 'TOTAL',
-                'Score Before': team1_df['Score Before'].sum(),
-                'Score After': team1_df['Score After'].sum(),
+                'Score Before': sum(p['Score Before'] for p in st.session_state.team1_players),
+                'Score After': sum(p['Score After'] for p in st.session_state.team1_players),
                 'Difference': team1_total
-            }])
-            team1_df = pd.concat([team1_df, total_row])
+            }]
+            # Create DataFrame with all data
+            team1_df = pd.DataFrame(team1_data + total_row)
             st.dataframe(team1_df, hide_index=True, use_container_width=True)
 
-            # Delete buttons for players
-            for idx, player in enumerate(st.session_state.team1_players):
-                if st.button(f"Delete {player['Name']}", key=f"delete_team1_{idx}"):
-                    st.session_state.team1_players.pop(idx)
-                    st.rerun()
-
-        # Show penalties if any
-        if st.session_state.team1_penalties:
-            st.subheader("Team 1 Penalties")
-            penalties_df = pd.DataFrame(st.session_state.team1_penalties)
-            st.dataframe(penalties_df, hide_index=True, use_container_width=True)
-            # Delete buttons for penalties
-            for idx, penalty in enumerate(st.session_state.team1_penalties):
-                if st.button(f"Delete Penalty {penalty['Description']}", key=f"delete_penalty_team1_{idx}"):
-                    st.session_state.team1_penalties.pop(idx)
+            # Delete buttons
+            for idx, item in enumerate(team1_data):
+                if st.button(f"Delete {item['Name']}", key=f"delete_team1_{idx}"):
+                    if item in st.session_state.team1_players:
+                        st.session_state.team1_players.remove(item)
+                    else:
+                        st.session_state.team1_penalties.remove(item)
                     st.rerun()
 
     if st.session_state.team2_players:
         st.header("Team 2")
-        team2_df = pd.DataFrame(st.session_state.team2_players)
-        if not team2_df.empty:
-            # Calculate total before displaying
+        # Combine players and penalties for display
+        team2_data = st.session_state.team2_players + st.session_state.team2_penalties
+        if team2_data:
+            # Calculate total from players only
             team2_total = sum(p['Difference'] for p in st.session_state.team2_players)
-            # Add total row
-            total_row = pd.DataFrame([{
+            # Create total row
+            total_row = [{
                 'Name': 'TOTAL',
-                'Score Before': team2_df['Score Before'].sum(),
-                'Score After': team2_df['Score After'].sum(),
+                'Score Before': sum(p['Score Before'] for p in st.session_state.team2_players),
+                'Score After': sum(p['Score After'] for p in st.session_state.team2_players),
                 'Difference': team2_total
-            }])
-            team2_df = pd.concat([team2_df, total_row])
+            }]
+            # Create DataFrame with all data
+            team2_df = pd.DataFrame(team2_data + total_row)
             st.dataframe(team2_df, hide_index=True, use_container_width=True)
 
-            # Delete buttons for players
-            for idx, player in enumerate(st.session_state.team2_players):
-                if st.button(f"Delete {player['Name']}", key=f"delete_team2_{idx}"):
-                    st.session_state.team2_players.pop(idx)
-                    st.rerun()
-
-        # Show penalties if any
-        if st.session_state.team2_penalties:
-            st.subheader("Team 2 Penalties")
-            penalties_df = pd.DataFrame(st.session_state.team2_penalties)
-            st.dataframe(penalties_df, hide_index=True, use_container_width=True)
-            # Delete buttons for penalties
-            for idx, penalty in enumerate(st.session_state.team2_penalties):
-                if st.button(f"Delete Penalty {penalty['Description']}", key=f"delete_penalty_team2_{idx}"):
-                    st.session_state.team2_penalties.pop(idx)
+            # Delete buttons
+            for idx, item in enumerate(team2_data):
+                if st.button(f"Delete {item['Name']}", key=f"delete_team2_{idx}"):
+                    if item in st.session_state.team2_players:
+                        st.session_state.team2_players.remove(item)
+                    else:
+                        st.session_state.team2_penalties.remove(item)
                     st.rerun()
 
 def main():
