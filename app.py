@@ -1,141 +1,109 @@
 import streamlit as st
+import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-from utils import (
-    validate_numeric_input,
-    perform_math_operation,
-    create_dataframe,
-    calculate_statistics
-)
 
 def initialize_session_state():
     """Initialize session state variables."""
-    if 'data' not in st.session_state:
-        st.session_state.data = []
-    if 'processed_data' not in st.session_state:
-        st.session_state.processed_data = []
+    if 'players' not in st.session_state:
+        st.session_state.players = []
+    if 'team1' not in st.session_state:
+        st.session_state.team1 = []
+    if 'team2' not in st.session_state:
+        st.session_state.team2 = []
 
 def render_header():
     """Render the application header."""
-    st.title("Mathematical Chart Maker")
+    st.title("Baddies Stomp Counter")
     st.markdown("""
-    Enter comma-separated numbers, perform mathematical operations, 
-    and visualize the results through different chart types.
+    Track individual player stomps and team performance.
+    Add players and their stomp counts below.
     """)
 
-def render_data_input():
-    """Render the data input section."""
-    st.header("Data Input")
-    data_input = st.text_area(
-        "Enter your numbers (comma-separated):",
-        placeholder="Example: 1.5, 2.0, 3.5, 4.0"
-    )
-    
-    if st.button("Process Data"):
-        if data_input:
-            is_valid, numbers = validate_numeric_input(data_input)
-            if is_valid:
-                st.session_state.data = numbers
-                st.session_state.processed_data = numbers.copy()
-                st.success("Data processed successfully!")
-            else:
-                st.error("Please enter valid numeric values separated by commas.")
+def render_player_input():
+    """Render the player input section."""
+    st.header("Add Player Stats")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        player_name = st.text_input("Player Name")
+    with col2:
+        start_stomps = st.number_input("Start Stomps", min_value=0, value=0)
+    with col3:
+        end_stomps = st.number_input("End Stomps", min_value=0, value=0)
+
+    if st.button("Add Player"):
+        if player_name and end_stomps >= start_stomps:
+            new_player = {
+                "Player": player_name,
+                "Start Stomps": start_stomps,
+                "End Stomps": end_stomps,
+                "Increase": end_stomps - start_stomps
+            }
+            st.session_state.players.append(new_player)
+            st.success(f"Added {player_name}'s stats!")
         else:
-            st.error("Please enter some data.")
+            st.error("Please enter valid player information.")
 
-def render_math_operations():
-    """Render the mathematical operations section."""
-    if st.session_state.data:
-        st.header("Mathematical Operations")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            operation = st.selectbox(
-                "Select Operation",
-                ["Add", "Subtract", "Multiply", "Divide"]
-            )
-        
-        with col2:
-            value = st.number_input("Enter Value", value=0.0)
-        
-        if st.button("Apply Operation"):
-            try:
-                st.session_state.processed_data = perform_math_operation(
-                    st.session_state.data,
-                    operation,
-                    value
-                )
-                st.success(f"Operation {operation} completed successfully!")
-            except ValueError as e:
-                st.error(str(e))
+def render_player_stats():
+    """Render the player statistics section."""
+    if st.session_state.players:
+        st.header("Player Statistics")
 
-def render_statistics():
-    """Render the statistics section."""
-    if st.session_state.processed_data:
-        st.header("Statistics")
-        stats = calculate_statistics(st.session_state.processed_data)
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.metric("Mean", f"{stats['Mean']:.2f}")
-            st.metric("Median", f"{stats['Median']:.2f}")
-            st.metric("Standard Deviation", f"{stats['Standard Deviation']:.2f}")
-        
-        with col2:
-            st.metric("Minimum", f"{stats['Minimum']:.2f}")
-            st.metric("Maximum", f"{stats['Maximum']:.2f}")
+        df = pd.DataFrame(st.session_state.players)
+        st.dataframe(df, hide_index=True)
 
-def render_charts():
-    """Render the charts section."""
-    if st.session_state.processed_data:
-        st.header("Data Visualization")
-        
-        chart_type = st.selectbox(
-            "Select Chart Type",
-            ["Line Chart", "Bar Chart", "Scatter Plot"]
-        )
-        
-        df = create_dataframe(st.session_state.processed_data)
-        
-        if chart_type == "Line Chart":
-            fig = px.line(
-                df,
-                x='Index',
-                y='Value',
-                title='Line Chart of Values',
-                markers=True
-            )
-        elif chart_type == "Bar Chart":
-            fig = px.bar(
-                df,
-                x='Index',
-                y='Value',
-                title='Bar Chart of Values'
-            )
-        else:  # Scatter Plot
-            fig = px.scatter(
-                df,
-                x='Index',
-                y='Value',
-                title='Scatter Plot of Values'
-            )
-        
-        fig.update_layout(
-            xaxis_title="Data Point Index",
-            yaxis_title="Value",
-            showlegend=False
-        )
-        
+        # Visualization
+        fig = px.bar(df, 
+                    x="Player", 
+                    y="Increase",
+                    title="Stomp Increases by Player",
+                    labels={"Increase": "Stomp Increase"})
+        st.plotly_chart(fig, use_container_width=True)
+
+def render_team_comparison():
+    """Render the team comparison section."""
+    st.header("Team Comparison")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Team 1")
+        team1_name = st.text_input("Team 1 Name", value="Team 1")
+        team1_start = st.number_input("Team 1 Start Stomps", min_value=0, value=0)
+        team1_end = st.number_input("Team 1 End Stomps", min_value=0, value=0)
+
+    with col2:
+        st.subheader("Team 2")
+        team2_name = st.text_input("Team 2 Name", value="Team 2")
+        team2_start = st.number_input("Team 2 Start Stomps", min_value=0, value=0)
+        team2_end = st.number_input("Team 2 End Stomps", min_value=0, value=0)
+
+    if st.button("Compare Teams"):
+        team_data = pd.DataFrame({
+            "Team": [team1_name, team2_name],
+            "Start Stomps": [team1_start, team2_start],
+            "End Stomps": [team1_end, team2_end],
+            "Increase": [team1_end - team1_start, team2_end - team2_start]
+        })
+
+        st.dataframe(team_data, hide_index=True)
+
+        # Team comparison visualization
+        fig = px.bar(team_data,
+                    x="Team",
+                    y=["Start Stomps", "End Stomps"],
+                    title="Team Stomps Comparison",
+                    barmode="group")
         st.plotly_chart(fig, use_container_width=True)
 
 def main():
     """Main application function."""
     initialize_session_state()
     render_header()
-    render_data_input()
-    render_math_operations()
-    render_statistics()
-    render_charts()
+    render_player_input()
+    render_player_stats()
+    render_team_comparison()
 
 if __name__ == "__main__":
     main()
