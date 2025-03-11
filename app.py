@@ -4,19 +4,20 @@ import plotly.express as px
 
 def initialize_session_state():
     """Initialize session state variables."""
-    if 'players' not in st.session_state:
-        st.session_state.players = []
-    if 'team1' not in st.session_state:
-        st.session_state.team1 = []
-    if 'team2' not in st.session_state:
-        st.session_state.team2 = []
+    if 'unassigned_players' not in st.session_state:
+        st.session_state.unassigned_players = []
+    if 'team1_players' not in st.session_state:
+        st.session_state.team1_players = []
+    if 'team2_players' not in st.session_state:
+        st.session_state.team2_players = []
 
 def render_header():
     """Render the application header."""
     st.title("Baddies Stomp Counter")
     st.markdown("""
-    Track individual player stomps and team performance.
-    Add players and their stomp counts below.
+    1. Add player stats below
+    2. Use the team assignment section to organize players into teams
+    3. View team statistics and comparisons
     """)
 
 def render_player_input():
@@ -40,61 +41,70 @@ def render_player_input():
                 "End Stomps": end_stomps,
                 "Increase": end_stomps - start_stomps
             }
-            st.session_state.players.append(new_player)
+            st.session_state.unassigned_players.append(new_player)
             st.success(f"Added {player_name}'s stats!")
         else:
             st.error("Please enter valid player information.")
 
-def render_player_stats():
-    """Render the player statistics section."""
-    if st.session_state.players:
-        st.header("Player Statistics")
+def render_team_assignment():
+    """Render the team assignment section."""
+    st.header("Team Assignment")
 
-        df = pd.DataFrame(st.session_state.players)
-        st.dataframe(df, hide_index=True)
-
-        # Visualization
-        fig = px.bar(df, 
-                    x="Player", 
-                    y="Increase",
-                    title="Stomp Increases by Player",
-                    labels={"Increase": "Stomp Increase"})
-        st.plotly_chart(fig, use_container_width=True)
-
-def render_team_comparison():
-    """Render the team comparison section."""
-    st.header("Team Comparison")
-
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.subheader("Team 1")
-        team1_name = st.text_input("Team 1 Name", value="Team 1")
-        team1_start = st.number_input("Team 1 Start Stomps", min_value=0, value=0)
-        team1_end = st.number_input("Team 1 End Stomps", min_value=0, value=0)
+        st.subheader("Available Players")
+        for i, player in enumerate(st.session_state.unassigned_players):
+            if st.button(f"➡️ {player['Player']} (+{player['Increase']} stomps)", key=f"unassigned_{i}"):
+                team = st.radio(f"Select team for {player['Player']}", ["Team 1", "Team 2"])
+                if team == "Team 1":
+                    st.session_state.team1_players.append(player)
+                else:
+                    st.session_state.team2_players.append(player)
+                st.session_state.unassigned_players.remove(player)
+                st.rerun()
 
     with col2:
-        st.subheader("Team 2")
-        team2_name = st.text_input("Team 2 Name", value="Team 2")
-        team2_start = st.number_input("Team 2 Start Stomps", min_value=0, value=0)
-        team2_end = st.number_input("Team 2 End Stomps", min_value=0, value=0)
+        st.subheader("Team 1")
+        for i, player in enumerate(st.session_state.team1_players):
+            if st.button(f"❌ {player['Player']} (+{player['Increase']} stomps)", key=f"team1_{i}"):
+                st.session_state.unassigned_players.append(player)
+                st.session_state.team1_players.remove(player)
+                st.rerun()
 
-    if st.button("Compare Teams"):
+    with col3:
+        st.subheader("Team 2")
+        for i, player in enumerate(st.session_state.team2_players):
+            if st.button(f"❌ {player['Player']} (+{player['Increase']} stomps)", key=f"team2_{i}"):
+                st.session_state.unassigned_players.append(player)
+                st.session_state.team2_players.remove(player)
+                st.rerun()
+
+def render_team_statistics():
+    """Render team statistics."""
+    if st.session_state.team1_players or st.session_state.team2_players:
+        st.header("Team Statistics")
+
+        # Calculate team totals
+        team1_total_increase = sum(p['Increase'] for p in st.session_state.team1_players)
+        team2_total_increase = sum(p['Increase'] for p in st.session_state.team2_players)
+
+        # Create team comparison DataFrame
         team_data = pd.DataFrame({
-            "Team": [team1_name, team2_name],
-            "Start Stomps": [team1_start, team2_start],
-            "End Stomps": [team1_end, team2_end],
-            "Increase": [team1_end - team1_start, team2_end - team2_start]
+            "Team": ["Team 1", "Team 2"],
+            "Players": [len(st.session_state.team1_players), len(st.session_state.team2_players)],
+            "Total Stomp Increase": [team1_total_increase, team2_total_increase]
         })
 
+        # Display team comparison
         st.dataframe(team_data, hide_index=True)
 
-        # Team comparison visualization
+        # Create team comparison visualization
         fig = px.bar(team_data,
                     x="Team",
-                    y=["Start Stomps", "End Stomps"],
-                    title="Team Stomps Comparison",
-                    barmode="group")
+                    y="Total Stomp Increase",
+                    title="Team Stomp Comparison",
+                    color="Team")
         st.plotly_chart(fig, use_container_width=True)
 
 def main():
@@ -102,8 +112,8 @@ def main():
     initialize_session_state()
     render_header()
     render_player_input()
-    render_player_stats()
-    render_team_comparison()
+    render_team_assignment()
+    render_team_statistics()
 
 if __name__ == "__main__":
     main()
