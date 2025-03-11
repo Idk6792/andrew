@@ -65,6 +65,32 @@ def set_page_style():
             50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
+        .title-container {
+            position: relative;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .title-container h1 {
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .title-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://replit.com/cdn/attached_assets/download.gif'); /* Replace with your GIF URL */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.8;
+            border-radius: 10px;
+            z-index: 1;
+        }
         </style>
         <div class="blooming-flower">✿</div>
     """, unsafe_allow_html=True)
@@ -83,7 +109,7 @@ def initialize_session_state():
 def render_header():
     """Render the application header."""
     st.markdown('<div class="header-border">', unsafe_allow_html=True)
-    st.markdown("# Andrew's Baddies Stomp Counter")
+    st.markdown('<div class="title-container"><div class="title-bg"></div><h1>Andrew and Shadows Stomp Counter</h1></div>', unsafe_allow_html=True)
     st.markdown('<div class="divider">ᵔᴗᵔ ⟡ ✿ ⟡ ᵔᴗᵔ</div>', unsafe_allow_html=True)
     st.markdown("""
     1. Add player stats below
