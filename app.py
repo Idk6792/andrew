@@ -68,10 +68,10 @@ def render_penalty_input():
     if st.button("Add Penalty"):
         if penalty_name and penalty_amount > 0:
             new_penalty = {
-                "Name": f"Mari/Leak - {penalty_name}",
+                "Name": penalty_name,
                 "Score Before": "N/A",
                 "Score After": "N/A",
-                "Difference": penalty_amount
+                "Difference": -penalty_amount  # Make penalties negative
             }
             if team == "Team 1":
                 st.session_state.team1_penalties.append(new_penalty)
@@ -88,13 +88,16 @@ def render_team_statistics():
         # Combine players and penalties for display
         team1_data = st.session_state.team1_players + st.session_state.team1_penalties
         if team1_data:
-            # Calculate total from players only
-            team1_total = sum(p['Difference'] for p in st.session_state.team1_players)
+            # Calculate total including penalties
+            team1_total = (
+                sum(p['Difference'] for p in st.session_state.team1_players) +
+                sum(p['Difference'] for p in st.session_state.team1_penalties)
+            )
             # Create total row
             total_row = [{
                 'Name': 'TOTAL',
-                'Score Before': sum(p['Score Before'] for p in st.session_state.team1_players),
-                'Score After': sum(p['Score After'] for p in st.session_state.team1_players),
+                'Score Before': sum(p['Score Before'] for p in st.session_state.team1_players if isinstance(p['Score Before'], (int, float))),
+                'Score After': sum(p['Score After'] for p in st.session_state.team1_players if isinstance(p['Score After'], (int, float))),
                 'Difference': team1_total
             }]
             # Create DataFrame with all data
@@ -115,13 +118,16 @@ def render_team_statistics():
         # Combine players and penalties for display
         team2_data = st.session_state.team2_players + st.session_state.team2_penalties
         if team2_data:
-            # Calculate total from players only
-            team2_total = sum(p['Difference'] for p in st.session_state.team2_players)
+            # Calculate total including penalties
+            team2_total = (
+                sum(p['Difference'] for p in st.session_state.team2_players) +
+                sum(p['Difference'] for p in st.session_state.team2_penalties)
+            )
             # Create total row
             total_row = [{
                 'Name': 'TOTAL',
-                'Score Before': sum(p['Score Before'] for p in st.session_state.team2_players),
-                'Score After': sum(p['Score After'] for p in st.session_state.team2_players),
+                'Score Before': sum(p['Score Before'] for p in st.session_state.team2_players if isinstance(p['Score Before'], (int, float))),
+                'Score After': sum(p['Score After'] for p in st.session_state.team2_players if isinstance(p['Score After'], (int, float))),
                 'Difference': team2_total
             }]
             # Create DataFrame with all data
